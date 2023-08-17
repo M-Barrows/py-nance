@@ -14,8 +14,6 @@ services:
             dockerfile: dockerfile
         # Name the container
         container_name: pynance
-        # Run the app.py file as the command
-        command: python app.py
         # Mount the current directory as a volume in the container
         volumes:
             - .:/code

@@ -19,3 +19,4 @@ RUN pip install -r requirements.txt
 # Copy the rest of the code into the image
 EXPOSE 8080
 COPY . /code/
+CMD ["python", "app.py"]

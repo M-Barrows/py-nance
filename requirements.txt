@@ -1,0 +1,6 @@
+# requirements.txt
+# This is the file for listing the required Python packages
+
+# Dash is the framework for building the web app
+dash
+dash-bootstrap-components

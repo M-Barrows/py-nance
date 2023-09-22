@@ -48,9 +48,9 @@ def make_compound_reinvestment_df(p:float,r:float,n:int,t:float=1,n_terms:int=1,
     terms_remaining = n_terms
     while terms_remaining > 0:
         term_interest.append(compound_interest(term_principal[-1],r,n,t)-term_principal[-1])
-        interest_earned.append(term_interest[-1])
+        interest_earned.append(interest_earned[-1] + term_interest[-1])
         total_value.append(total_value[-1] + term_interest[-1])
         term_principal.append((term_principal[-1] + term_interest[-1]) * (percent_reinvest/100))
         terms_remaining -= 1
-    df = pd.DataFrame({'Term':list(range(n_terms+1)), 'Term_Principal':term_principal,"Term_Interest":term_interest,"Total_Value":total_value})
+    df = pd.DataFrame({'Term':list(range(n_terms+1)), 'Term_Principal':term_principal,"Term_Interest":term_interest,"Total_Interest": interest_earned,"Total_Value":total_value})
     return df

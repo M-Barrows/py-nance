@@ -13,46 +13,43 @@ import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 from dash_bootstrap_templates import ThemeSwitchAIO
 from libs import helper_funcs as hf
+from components.navbar import navbar
+from theme.config import (LIGHT_THEME_TEMPLATE, LIGHT_THEME_URL, DARK_THEME_TEMPLATE, DARK_THEME_URL)
 
 load_figure_template(['minty','solar'])
-LIGHT_THEME_TEMPLATE = 'minty'
-DARK_THEME_TEMPLATE = 'solar'
-LIGHT_THEME_URL = dbc.themes.MINTY
-DARK_THEME_URL = dbc.themes.SOLAR
 
 dbc_css = (
     "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.1/dbc.min.css"
 )
 
 money = FormatTemplate.money(2)
-
 app = dash.Dash(__name__, external_stylesheets=[LIGHT_THEME_URL,dbc_css])
 app.title = 'Py-Nance'
 
 
-cd_layout = html.Div([
+cd_layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             dbc.Row([
-                dbc.Col([dbc.Label("Principal"), dbc.Input(value = 20_000,id='principal', type='number')],width=6),
-                dbc.Col([dbc.Label("Interest Rate"), dbc.Input(value = 4.25,id='rate', type='number')],width=6),
+                dbc.Col([dbc.Label("Principal"), dbc.Input(value = 20_000,id='principal', type='number')],sm=6),
+                dbc.Col([dbc.Label("Interest Rate"), dbc.Input(value = 4.25,id='rate', type='number')],sm=6),
             ]),
             dbc.Row([
-                dbc.Col([dbc.Label("Compound Periods per Year"), dbc.Input(value = 12,id='compound_n', type='number')],width=6),
-                dbc.Col([dbc.Label("CD Length (years)"), dbc.Input(value = 0.75,id='compound_t', type='number')],width=6),
+                dbc.Col([dbc.Label("Compound Periods per Year"), dbc.Input(value = 12,id='compound_n', type='number')],sm=6),
+                dbc.Col([dbc.Label("CD Length (years)"), dbc.Input(value = 0.75,id='compound_t', type='number')],sm=6),
             ]),
             dbc.Row([
-                dbc.Col([dbc.Label("Times Reinvested"), dbc.Input(value = 30,id='n_terms', type='number')],width=6),
-                dbc.Col([dbc.Label("Reinvestment %"), dbc.Input(value = 100,id='reinvest_percent', type='number')],width=6),
+                dbc.Col([dbc.Label("Times Reinvested"), dbc.Input(value = 30,id='n_terms', type='number')],sm=6),
+                dbc.Col([dbc.Label("Reinvestment %"), dbc.Input(value = 100,id='reinvest_percent', type='number')],sm=6),
             ]),
-            dbc.Row([html.H3([],id='total-interest-callout')],class_name='m-5')
-        ],width=6, align='start'),
+            dbc.Row([dbc.Card([dbc.CardHeader([html.H5(["Total Interest Earned"])]),dbc.CardBody([html.H1([],id='total-interest-callout')])])],class_name='my-5 mx-2')
+        ],lg=4, align='start'),
         dbc.Col([
             dcc.Graph(
                 id='data-chart',
 
             )
-        ],width=6, align='center')
+        ],lg=8, align='center', class_name='mx-2 mb-3')
     ]),
     dbc.Row([
         dash_table.DataTable(
@@ -65,12 +62,10 @@ cd_layout = html.Div([
             style_table={"overflowX": "auto"},
             id='data-grid'
     ),
-    ])
+    ],class_name='mb-3')
 ])
-
 app.layout = dbc.Container([
-    html.H1(children="PyNance", style={'textAlign':'center'}),
-    ThemeSwitchAIO(aio_id="theme", themes=[LIGHT_THEME_URL, DARK_THEME_URL],),
+    navbar,
     cd_layout
 ],className='dbc dbc-ag-grid',fluid=True)
 
@@ -121,9 +116,10 @@ def generate_chart(principal, rate, compound_n, compound_t, n_terms, reinvest_pe
 )
 def calculate_interest_earned(principal, rate, compound_n, compound_t, n_terms, reinvest_percent):
     df = hf.make_compound_reinvestment_df(principal,(rate/100),compound_n,compound_t,n_terms,percent_reinvest=reinvest_percent)
-    total = float(df.iloc[[-1]]['Total_Interest'])
-    text = f"Total Interest Earned: ${total:,.2f}"
+    total = float(df.iloc[[-1]]['Total_Interest'].iloc[0])
+    text = f"${total:,.2f}"
     return text
+
 # Run the app on port 8080
 if __name__ == "__main__":
     app.run_server(host='0.0.0.0', port=8080, debug=True)

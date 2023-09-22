@@ -1,7 +1,3 @@
-# app.py
-# This is the main file for the Dash app
-
-# Import the necessary modules
 import dash
 from dash import dcc, html, callback, dash_table
 from dash.dash_table import DataTable, FormatTemplate
@@ -16,22 +12,14 @@ from libs import helper_funcs as hf
 from components.navbar import navbar
 from theme.config import (LIGHT_THEME_TEMPLATE, LIGHT_THEME_URL, DARK_THEME_TEMPLATE, DARK_THEME_URL)
 
-load_figure_template(['minty','solar'])
+dash.register_page(
+    __name__,
+    path='/',
+    title='PyNance',
+    name='PyNance'
+    )
 
-dbc_css = (
-    "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.1/dbc.min.css"
-)
-
-
-app = dash.Dash(__name__, external_stylesheets=[LIGHT_THEME_URL,dbc_css], use_pages=True)
-app.title = 'Py-Nance'
-
-app.layout = dbc.Container([
-    navbar,
-    dash.page_container
-],className='dbc dbc-ag-grid',fluid=True)
-
-
-# Run the app on port 8080
-if __name__ == "__main__":
-    app.run_server(host='0.0.0.0', port=8080, debug=True)
+layout =  dbc.Container([
+    html.H1(["PyNance"]),
+    html.H2(["Finance tools built in Python"])
+])

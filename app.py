@@ -3,15 +3,30 @@
 
 # Import the necessary modules
 import dash
-from dash import dcc, html, callback
+from dash import dcc, html, callback, dash_table
+from dash.dash_table import DataTable, FormatTemplate
 from dash.dependencies import Input, Output, State
 import dash_ag_grid as dag
 import pandas as pd
 import plotly.express as px
 import dash_bootstrap_components as dbc
+from dash_bootstrap_templates import load_figure_template
+from dash_bootstrap_templates import ThemeSwitchAIO
 from libs import helper_funcs as hf
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
+load_figure_template(['minty','solar'])
+LIGHT_THEME_TEMPLATE = 'minty'
+DARK_THEME_TEMPLATE = 'solar'
+LIGHT_THEME_URL = dbc.themes.MINTY
+DARK_THEME_URL = dbc.themes.SOLAR
+
+dbc_css = (
+    "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.1/dbc.min.css"
+)
+
+money = FormatTemplate.money(2)
+
+app = dash.Dash(__name__, external_stylesheets=[LIGHT_THEME_URL,dbc_css])
 app.title = 'Py-Nance'
 
 
@@ -39,30 +54,29 @@ cd_layout = html.Div([
         ],width=6, align='center')
     ]),
     dbc.Row([
-        dag.AgGrid(
-            defaultColDef={"resizable": True, "sortable": False, "filter": False},
-            columnDefs=[
-                {'field': 'Term'},
-                {'field': "Term_Principal", "valueFormatter": {"function": "d3.format('($,.2f')(params.value)"}},
-                {'field': "Term_Interest", "valueFormatter": {"function": "d3.format('($,.2f')(params.value)"}},
-                {'field': "Total_Interest", "valueFormatter": {"function": "d3.format('($,.2f')(params.value)"}},
-                {'field': "Total_Value", "valueFormatter": {"function": "d3.format('($,.2f')(params.value)"}},
-            ],
-            columnSize="sizeToFit",
+        dash_table.DataTable(
+            columns=[
+                {"name":"Term","id":"Term"},
+                {"name":"Term_Principal","id":"Term_Principal", "type": 'numeric',"format": money},
+                {"name":"Term_Interest","id":"Term_Interest", "type": 'numeric',"format": money},
+                {"name":"Total_Interest","id":"Total_Interest", "type": 'numeric',"format": money},
+                {"name":"Total_Value","id":"Total_Value", "type": 'numeric',"format": money}],            
+            style_table={"overflowX": "auto"},
             id='data-grid'
-        )
+    ),
     ])
 ])
 
 app.layout = dbc.Container([
     html.H1(children="PyNance", style={'textAlign':'center'}),
+    ThemeSwitchAIO(aio_id="theme", themes=[LIGHT_THEME_URL, DARK_THEME_URL],),
     cd_layout
-])
+],className='dbc dbc-ag-grid',fluid=True)
 
 
 
 @callback(
-    Output('data-grid','rowData'),
+    Output('data-grid','data'),
     Input('principal','value'), 
     Input('rate','value'),
     Input('compound_n','value'),
@@ -73,7 +87,6 @@ app.layout = dbc.Container([
 )
 def generate_table(principal, rate, compound_n, compound_t, n_terms, reinvest_percent):
     df = hf.make_compound_reinvestment_df(principal,(rate/100),compound_n,compound_t,n_terms,percent_reinvest=reinvest_percent)
-    print(df)
     return df.to_dict('records')
 
 @callback(
@@ -83,14 +96,16 @@ def generate_table(principal, rate, compound_n, compound_t, n_terms, reinvest_pe
     Input('compound_n','value'),
     Input('compound_t','value'),
     Input('n_terms','value'),
-    Input('reinvest_percent','value')
+    Input('reinvest_percent','value'),
+    Input(ThemeSwitchAIO.ids.switch("theme"), "value")
 
 )
-def generate_chart(principal, rate, compound_n, compound_t, n_terms, reinvest_percent):
+def generate_chart(principal, rate, compound_n, compound_t, n_terms, reinvest_percent,toggle):
+    template = LIGHT_THEME_TEMPLATE if toggle else DARK_THEME_TEMPLATE
     df = hf.make_compound_reinvestment_df(principal,(rate/100),compound_n,compound_t,n_terms,percent_reinvest=reinvest_percent)
     df = df.loc[:,['Term','Total_Value','Total_Interest']]
     df = pd.melt(df,id_vars='Term',var_name='Type')
-    plt = px.line(df,x='Term',y='value',color="Type",template='plotly_white')
+    plt = px.line(df,x='Term',y='value',color="Type",template=template)
     return plt
 
 # Run the app on port 8080

@@ -1,4 +1,3 @@
-import polars as pl
 import pandas as pd
 
 def compound_interest(p:float,r:float,n:int,t:float=1):

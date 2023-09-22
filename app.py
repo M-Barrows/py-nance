@@ -44,7 +44,8 @@ cd_layout = html.Div([
             dbc.Row([
                 dbc.Col([dbc.Label("Times Reinvested"), dbc.Input(value = 30,id='n_terms', type='number')],width=6),
                 dbc.Col([dbc.Label("Reinvestment %"), dbc.Input(value = 100,id='reinvest_percent', type='number')],width=6),
-            ])
+            ]),
+            dbc.Row([html.H3([],id='total-interest-callout')],class_name='m-5')
         ],width=6, align='start'),
         dbc.Col([
             dcc.Graph(
@@ -108,6 +109,21 @@ def generate_chart(principal, rate, compound_n, compound_t, n_terms, reinvest_pe
     plt = px.line(df,x='Term',y='value',color="Type",template=template)
     return plt
 
+@callback(
+    Output('total-interest-callout','children'),
+    Input('principal','value'), 
+    Input('rate','value'),
+    Input('compound_n','value'),
+    Input('compound_t','value'),
+    Input('n_terms','value'),
+    Input('reinvest_percent','value')
+
+)
+def calculate_interest_earned(principal, rate, compound_n, compound_t, n_terms, reinvest_percent):
+    df = hf.make_compound_reinvestment_df(principal,(rate/100),compound_n,compound_t,n_terms,percent_reinvest=reinvest_percent)
+    total = float(df.iloc[[-1]]['Total_Interest'])
+    text = f"Total Interest Earned: ${total:,.2f}"
+    return text
 # Run the app on port 8080
 if __name__ == "__main__":
     app.run_server(host='0.0.0.0', port=8080, debug=True)

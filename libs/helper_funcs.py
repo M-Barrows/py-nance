@@ -1,4 +1,5 @@
 import polars as pl
+import pandas as pd
 
 def compound_interest(p:float,r:float,n:int,t:float=1):
     """
@@ -51,5 +52,5 @@ def make_compound_reinvestment_df(p:float,r:float,n:int,t:float=1,n_terms:int=1,
         total_value.append(total_value[-1] + term_interest[-1])
         term_principal.append((term_principal[-1] + term_interest[-1]) * (percent_reinvest/100))
         terms_remaining -= 1
-    df = pl.DataFrame({'Term':list(range(n_terms+1)), 'Term_Principal':term_principal,"Term_Interest":term_interest,"Total_Value":total_value})
+    df = pd.DataFrame({'Term':list(range(n_terms+1)), 'Term_Principal':term_principal,"Term_Interest":term_interest,"Total_Value":total_value})
     return df

@@ -10,14 +10,6 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: codecoffeee/py-nance
-          tags: |
-            type=raw,value={{date 'YYYYMMDD'}}
       - 
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -35,4 +27,4 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: codecoffee/py-nance:latest

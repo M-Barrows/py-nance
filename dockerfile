@@ -2,7 +2,7 @@
 # This is the file for building the Docker image
 
 # Use the official Python image as the base image
-FROM python:3
+FROM python:3.10.13-slim-bullseye
 
 # Set the environment variable for unbuffered output
 ENV PYTHONUNBUFFERED 1

@@ -26,4 +26,4 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: codecoffee/py-nance:$(date +%s)
+          tags: codecoffee/py-nance:$(date +%Y-%m-%d)
